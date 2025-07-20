@@ -1,0 +1,25 @@
+{
+  "name": "airbridge",
+  "version": "1.0.0",
+  "description": "A full-stack app for File Sharing",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js"
+  },
+  "keywords": [
+    "FileShare"
+  ],
+  "author": "Ahmed Saleem",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "firebase-admin": "^13.4.0",
+    "nodemailer": "^7.0.5"
+  }
+}
