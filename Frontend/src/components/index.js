@@ -6,7 +6,7 @@ import Footer from "./Footer"
 import Contact from "./Contact"
 import About from "./About"
 import UploadAndDownload from "./UploadAndDownload"
-
+import Dashboard from "./Dashboard"
 
 export {
     Login,
@@ -16,5 +16,6 @@ export {
     Footer,
     About, 
     Contact,
-    UploadAndDownload
+    UploadAndDownload,
+    Dashboard
 }

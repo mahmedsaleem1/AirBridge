@@ -135,3 +135,43 @@ export const insertFileTransaction = async (email, fileUrl) => {
   
   return { success: true };
 };
+
+// ...existing code...
+
+/**
+ * Get file transactions for a specific email
+ * @param {string} email - The email to filter transactions by
+ * @returns {Promise<{data: object[], error: object}>}
+ */
+export const getFileTransactionsByEmail = async (email) => {
+  try {
+    const { data, error } = await supabase
+      .from('airbridge-file-transactions')
+      .select()
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    return { data, error: null };
+  } catch (error) {
+    return { data: null, error };
+  }
+};
+
+export const getAllFileTransactions = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('airbridge-file-transactions')
+      .select('*')
+      .eq('email', email)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    return { data, error: null };
+  } catch (error) {
+    return { data: null, error };
+  }
+};

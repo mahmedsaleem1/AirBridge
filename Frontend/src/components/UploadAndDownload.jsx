@@ -19,140 +19,185 @@ function FileUploadForm() {
   const [showNotification, setShowNotification] = useState(!user);
   const [multipleFilesUploaded, setMultipleFilesUploaded] = useState(false);
   const [multipleFileUrls, setMultipleFileUrls] = useState([]);
+  const [fileDataWithQR, setFileDataWithQR] = useState([]);
+  const [qrCode, setQrCode] = useState('');
 
-  // Placeholder functions for button actions
+
+  // Implemented functions for button actions
   const handleDownload = (url) => {
-    alert(`Download functionality will be implemented for: ${url}`);
-  };
-
-  const handleCopyLink = (url) => {
-    alert(`Copy link functionality will be implemented for: ${url}`);
-  };
-
-  const handleShareWhatsApp = (url) => {
-    alert(`WhatsApp share functionality will be implemented for: ${url}`);
-  };
-
-  const handleMultipleDownload = () => {
-    alert(`Multiple files download functionality will be implemented`);
-  };
-
-  const handleMultipleShareWhatsApp = () => {
-    alert(`WhatsApp share all links functionality will be implemented`);
-  };
-
-  const handleSingleFileSubmit = async (data) => {
-    const file = data.file[0];
-
     try {
-      // Use storage service to upload file
-      const { data: uploadData, error } = await uploadFile(file);
-
-      if (error) {
-        alert(error.message);
-        return;
-      }
-
-      alert('File uploaded!');
-
-      // Get public URL using storage service
-      const publicUrl = getPublicUrl(uploadData.path);
-      setDownloadUrl(publicUrl);
-
-      // Send to backend API with correct data structure
-      const response = await fetch('http://localhost:8000/api/v1/file/single-file', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ fileName: file.name, url: publicUrl }),
-      });
-
-      const backendData = await response.json();
-
-      // Save to database if user is logged in using service
-      if (user) {
-        try {
-          await insertFileTransaction(user.email, publicUrl);
-          alert('File information saved to database successfully!');
-        } catch (dbError) {
-          alert(dbError.message);
-        }
-      }
+      // Create a temporary anchor element to trigger download
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = ''; // This will use the filename from the URL
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } catch (error) {
-      alert(`Upload failed: ${error.message}`);
+      console.error('Download failed:', error);
+      alert('Download failed. Please try again.');
     }
   };
 
-  const handleMultipleFileSubmit = async () => {
-    if (selectedFiles.length === 0) {
-      alert('Please select at least one file');
+  const handleCopyLink = async (url) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      alert('Link copied to clipboard!');
+    } catch (error) {
+      // Fallback for browsers that don't support clipboard API
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      alert('Link copied to clipboard!');
+    }
+  };
+
+  const handleShareWhatsApp = (url) => {
+    const message = encodeURIComponent(`Check out this file I shared: ${url}`);
+    const whatsappUrl = `https://wa.me/?text=${message}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  const handleMultipleDownload = () => {
+    if (multipleFileUrls.length === 0) {
+      alert('No files available for download');
       return;
     }
 
     try {
-      // Use storage service to upload multiple files
-      const { results, errors } = await uploadMultipleFiles(selectedFiles);
-
-      if (errors.length > 0) {
-        const errorMessages = errors.map(err => `${err.fileName}: ${err.error.message}`).join('\n');
-        alert(`Some files failed to upload:\n${errorMessages}`);
-      }
-
-      if (results.length === 0) {
-        alert('No files were uploaded successfully');
-        return;
-      }
-
-      // Process successful uploads
-      const uploadResults = [];
-      const fileUrls = [];
-      
-      for (const result of results) {
-        const publicUrl = getPublicUrl(result.uploadData.path);
-        
-        // Save to database if user is logged in using service
-        if (user) {
-          try {
-            await insertFileTransaction(user.email, publicUrl);
-          } catch (dbError) {
-            console.error(`Error saving ${result.fileName} to database:`, dbError.message);
-          }
-        }
-
-        uploadResults.push({
-          fileName: result.fileName,
-          url: publicUrl
-        });
-
-        fileUrls.push({
-          fileName: result.fileName,
-          url: publicUrl
-        });
-      }
-
-      setMultipleFileUrls(fileUrls);
-
-      // Send to backend API
-      const response = await fetch('http://localhost:8000/api/v1/file/multiple-files', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(uploadResults),
+      // Download each file with a small delay to avoid overwhelming the browser
+      multipleFileUrls.forEach((file, index) => {
+        setTimeout(() => {
+          const link = document.createElement('a');
+          link.href = file.url;
+          link.download = file.fileName;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }, index * 500); // 500ms delay between downloads
       });
-
-      const backendData = await response.json();
       
-      alert(`Successfully uploaded ${uploadResults.length} files!`);
-      
-      // Show download options
-      setMultipleFilesUploaded(true);
-
+      alert(`Starting download of ${multipleFileUrls.length} files...`);
     } catch (error) {
-      alert(`Upload failed: ${error.message}`);
+      console.error('Multiple download failed:', error);
+      alert('Download failed. Please try again.');
     }
   };
+
+  const handleMultipleShareWhatsApp = () => {
+    if (multipleFileUrls.length === 0) {
+      alert('No files available for sharing');
+      return;
+    }
+
+    const filesList = multipleFileUrls
+      .map(file => `• ${file.fileName}: ${file.url}`)
+      .join('\n');
+    
+    const message = encodeURIComponent(
+      `I've shared ${multipleFileUrls.length} files with you:\n\n${filesList}`
+    );
+    
+    const whatsappUrl = `https://wa.me/?text=${message}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  const handleSingleFileSubmit = async (data) => {
+  const file = data.file[0];
+
+  try {
+    const { data: uploadData, error } = await uploadFile(file);
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    alert('File uploaded!');
+    const publicUrl = getPublicUrl(uploadData.path);
+    setDownloadUrl(publicUrl);
+
+    const response = await fetch('http://localhost:8000/api/v1/file/single-file', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fileName: file.name, url: publicUrl }),
+    });
+
+    const result = await response.json();
+    setQrCode(result.data.qrCode); // 👈 save QR code
+
+    if (user) {
+      try {
+        await insertFileTransaction(user.email, publicUrl);
+        alert('File information saved to database successfully!');
+      } catch (dbError) {
+        alert(dbError.message);
+      }
+    }
+  } catch (error) {
+    alert(`Upload failed: ${error.message}`);
+  }
+};
+
+const handleMultipleFileSubmit = async () => {
+  if (selectedFiles.length === 0) {
+    alert('Please select at least one file');
+    return;
+  }
+
+  try {
+    const { results, errors } = await uploadMultipleFiles(selectedFiles);
+
+    if (errors.length > 0) {
+      const errorMessages = errors.map(err => `${err.fileName}: ${err.error.message}`).join('\n');
+      alert(`Some files failed to upload:\n${errorMessages}`);
+    }
+
+    if (results.length === 0) {
+      alert('No files were uploaded successfully');
+      return;
+    }
+
+    const uploadResults = [];
+
+    for (const result of results) {
+      const publicUrl = getPublicUrl(result.uploadData.path);
+
+      if (user) {
+        try {
+          await insertFileTransaction(user.email, publicUrl);
+        } catch (dbError) {
+          console.error(`Error saving ${result.fileName} to database:`, dbError.message);
+        }
+      }
+
+      uploadResults.push({
+        fileName: result.fileName,
+        url: publicUrl
+      });
+    }
+
+    // Send to backend
+    const response = await fetch('http://localhost:8000/api/v1/file/multiple-files', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(uploadResults),
+    });
+
+    const result = await response.json();
+    setFileDataWithQR(result.data); // 👈 contains fileName, url, qrCode
+    setMultipleFileUrls(uploadResults); // 👈 Add this line to fix the multiple download functionality
+
+    alert(`Successfully uploaded ${uploadResults.length} files!`);
+    setMultipleFilesUploaded(true);
+
+  } catch (error) {
+    alert(`Upload failed: ${error.message}`);
+  }
+};
 
   const handleFileSelection = (e) => {
     const newFiles = Array.from(e.target.files);
@@ -299,6 +344,20 @@ function FileUploadForm() {
           <div className="mt-6 p-4 bg-green-500/20 border border-green-400/30 rounded-lg">
             <p className="text-green-200 text-sm mb-3">File uploaded successfully!</p>
             
+            {/* QR Code Display for Single File */}
+            {qrCode && (
+              <div className="mb-4 text-center">
+                <p className="text-green-300 text-xs mb-2">QR Code:</p>
+                <div className="flex justify-center">
+                  <img 
+                    src={qrCode} 
+                    alt="QR Code for file download" 
+                    className="w-32 h-32 bg-white p-2 rounded-lg"
+                  />
+                </div>
+              </div>
+            )}
+            
             {/* Action Buttons for Single File */}
             <div className="space-y-2">
               <button
@@ -342,7 +401,25 @@ function FileUploadForm() {
           <div className="mt-6 p-4 bg-green-500/20 border border-green-400/30 rounded-lg">
             <p className="text-green-200 text-sm mb-3">Multiple files uploaded successfully!</p>
             
-            {/* Action Buttons for Multiple Files */}
+            {/* QR Codes Display for Multiple Files */}
+            {fileDataWithQR.length > 0 && (
+              <div className="mb-4">
+                <p className="text-green-300 text-xs mb-3">QR Codes for each file:</p>
+                <div className="grid grid-cols-2 gap-3 max-h-40 overflow-y-auto">
+                  {fileDataWithQR.map((file, index) => (
+                    <div key={index} className="text-center">
+                      <p className="text-white text-xs font-medium mb-1 truncate">{file.fileName}</p>
+                      <img 
+                        src={file.qrCode} 
+                        alt={`QR Code for ${file.fileName}`} 
+                        className="w-20 h-20 bg-white p-1 rounded mx-auto"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
             <div className="space-y-2 mb-4">
               <button
                 onClick={handleMultipleDownload}
@@ -394,7 +471,8 @@ function FileUploadForm() {
             )}
           </div>
         )}
-      </div>
+
+        </div>
     </div>
   );
 }

@@ -10,7 +10,7 @@ const LandingPage = () => {
   const handleGetStarted = () => {
     if (user) {
       // User is logged in, proceed normally
-      navigate('/dashboard'); // Adjust route as needed
+      navigate('/upload'); // Adjust route as needed
     } else {
       // User is not logged in, show modal
       setShowModal(true);
@@ -24,7 +24,7 @@ const LandingPage = () => {
 
   const handleContinueWithoutLogin = () => {
     setShowModal(false);
-    navigate('/dashboard'); // Adjust route as needed
+    navigate('/upload'); // Adjust route as needed
   };
 
   return (
