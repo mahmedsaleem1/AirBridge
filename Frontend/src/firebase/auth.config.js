@@ -20,7 +20,7 @@ export const googleLogin = async () => {
   const idToken = await result.user.getIdToken();
 
   // 🔐 Send token to backend
-  await axios.post("http://localhost:8000/api/v1/auth/google-login", {}, {
+  await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/auth/google-login`, {}, {
     headers: {
       Authorization: `Bearer ${idToken}`
     }
