@@ -120,7 +120,7 @@ function FileUploadForm() {
     const publicUrl = getPublicUrl(uploadData.path);
     setDownloadUrl(publicUrl);
 
-    const response = await fetch(`https://air-bridge-1qzh7hqkg-mahmedsaleem1s-projects.vercel.app/api/v1/file/single-file`, {
+    const response = await fetch(`https://air-bridge-self.vercel.app/api/v1/file/single-file`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ fileName: file.name, url: publicUrl }),
@@ -181,7 +181,7 @@ const handleMultipleFileSubmit = async () => {
     }
 
     // Send to backend
-    const response = await fetch(`https://air-bridge-1qzh7hqkg-mahmedsaleem1s-projects.vercel.app/api/v1/file/multiple-files`, {
+    const response = await fetch(`https://air-bridge-self.vercel.app/api/v1/file/multiple-files`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(uploadResults),

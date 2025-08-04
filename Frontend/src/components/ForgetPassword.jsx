@@ -15,7 +15,7 @@ const ForgetPassword = () => {
         
         try {
             const { email } = data;
-            const response = await fetch(`https://air-bridge-1qzh7hqkg-mahmedsaleem1s-projects.vercel.app/api/v1/auth/reset-password`, {
+            const response = await fetch(`https://air-bridge-self.vercel.app/api/v1/auth/reset-password`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
