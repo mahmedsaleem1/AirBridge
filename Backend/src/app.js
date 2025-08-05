@@ -6,7 +6,7 @@ import fileRouter from './routes/file.route.js';
 const app = express();
 
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://air-bridge-tan.vercel.app', 'http://localhost:8000'],
+  origin: ['http://localhost:5173', 'https://www.fileairbridge.me', 'http://localhost:8000'],
   credentials: true
 }))
 app.use(express.json());
