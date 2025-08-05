@@ -20,7 +20,7 @@ export const googleLogin = async () => {
   const idToken = await result.user.getIdToken();
 
   // 🔐 Send token to backend
-  await axios.post(`https://air-bridge-self.vercel.app/api/v1/auth/google-login`, {}, {
+  await axios.post(`${import.meta.env.VITE_VERCEL_URL}/api/v1/auth/google-login`, {}, {
     headers: {
       Authorization: `Bearer ${idToken}`
     }

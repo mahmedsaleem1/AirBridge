@@ -31,7 +31,7 @@ const Signup = () => {
         
         try {
             const { email, password } = data;
-            const response = await fetch(`https://air-bridge-self.vercel.app/api/v1/auth/signup`, {
+            const response = await fetch(`${import.meta.env.VITE_VERCEL_URL}/api/v1/auth/signup`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
