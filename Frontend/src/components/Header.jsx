@@ -146,6 +146,18 @@ const Header = () => {
                         >
                             Contact 
                         </button>
+                        <button
+                            onClick={() => navigate('/dashboard')}
+                            className="relative bold text-gray-700 hover:text-blue-600 px-4 py-2 rounded-lg text-base font-semibold transition-all duration-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:shadow-md transform hover:scale-105"
+                        >
+                            Dashboard
+                        </button>
+                        <button
+                            onClick={() => navigate('/upload')}
+                            className="relative bold text-gray-700 hover:text-blue-600 px-4 py-2 rounded-lg text-base font-semibold transition-all duration-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:shadow-md transform hover:scale-105"
+                        >
+                            Upload
+                        </button>
                         
                         {!user && (
                             <div className="pt-4 pb-3 border-t border-gray-200">
