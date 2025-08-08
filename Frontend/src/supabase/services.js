@@ -148,6 +148,7 @@ export const getFileTransactionsByEmail = async (email) => {
     const { data, error } = await supabase
       .from('airbridge-file-transactions')
       .select()
+      .eq('email', email)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -165,7 +166,6 @@ export const getAllFileTransactions = async () => {
     const { data, error } = await supabase
       .from('airbridge-file-transactions')
       .select('*')
-      .eq('email', email)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
